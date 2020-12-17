@@ -1,27 +1,29 @@
+import pytest
 import requests
 
 
 class TestToken:
-    def test_get_token(self):
-        # 获取access token
-        # ww32f831277a3c395f
-        # 9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4
-        corpid = "ww32f831277a3c395f"
-        corpsecret = "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4"
-
-        url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corpid}&corpsecret={corpsecret}"
+    @pytest.mark.parametrize(
+        "corp_id, corp_secret, errmsg",[("ww32f831277a3c395f", "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4", "ok"),
+                                ("ww32f831277a3c395f", "", "corpsecret missing"),
+                                ("", "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4", "corpid missing")],
+        ids = ['correct', 'missing secret', 'missing id']
+    )
+    def test_get_token(self, corp_id, corp_secret, errmsg):
+        # corpid = "ww32f831277a3c395f"
+        # corpsecret = "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4"
+        url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={corp_id}&corpsecret={corp_secret}"
         r = requests.get(url)
-        print(r.status_code)
-        print(r.json())
-        access_token = r.json()['access_token']
-        print(access_token)
+        assert r.json()["errmsg"] == errmsg
 
-    def test_token_param(self):
-        corpid = "ww32f831277a3c395f"
-        corpsecret = "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4"
+    @pytest.mark.parametrize(
+        "corp_id, corp_secret, errmsg", [("ww32f831277a3c395f", "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4", "ok"),
+                                         ("ww32f831277a3c395f", "", "corpsecret missing"),
+                                         ("", "9n1UoQkHZCXtaOyrK0cXVFYXHsUH2jCoigaMfNSWps4", "corpid missing")],
+        ids=['correct', 'missing secret', 'missing id']
+    )
+    def test_token_param(self, corp_id, corp_secret, errmsg):
         url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken"
-        r = requests.get(url,params={"corpid":corpid, "corpsecret":corpsecret})
-        print(r.status_code)
-        print(r.json())
-        access_token = r.json()['access_token']
-        print(access_token)
+        r = requests.get(url,params={"corpid": corp_id, "corpsecret": corp_secret})
+        assert r.json()["errmsg"] == errmsg
+        self.access_token = r.json()['access_token']
